@@ -4,9 +4,18 @@ const fs = require('fs')
 const Auth = require('./auth')
 
 module.exports = {
+    album,
     albums,
     createMediaItem,
+    mediaItems,
     upload,
+}
+
+async function album(id) {
+    const url = 'https://photoslibrary.googleapis.com/v1/albums/' + id
+    const client = await Auth.getAuthenticatedClient()
+    const { data } = await client.request({ url })
+    return data
 }
 
 async function albums(options = {}) {
@@ -45,6 +54,26 @@ async function createMediaItem(uploadToken, options = {}) {
         }
     })
     return res.data.newMediaItemResults[0]
+}
+
+async function mediaItems(options = {}) {
+    const { pageToken } = options
+    const url = 'https://photoslibrary.googleapis.com/v1/mediaItems'
+    const client = await Auth.getAuthenticatedClient()
+    const { data } = await client.request({
+        url,
+        params: {
+            pageSize: 100,
+            pageToken
+        }
+    })
+    if (data.nextPageToken) {
+        const nextBatch = await mediaItems({
+            pageToken: data.nextPageToken
+        })
+        return data.mediaItems.concat(nextBatch)
+    }
+    return data.mediaItems
 }
 
 async function upload(stream, options = {}) {
