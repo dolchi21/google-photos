@@ -20,14 +20,13 @@ async function albums(options = {}) {
             pageToken
         }
     })
-    const albums = data.albums
     if (data.nextPageToken) {
         const nextAlbums = await albums({
             pageToken: data.nextPageToken
         })
-        return albums.concat(nextAlbums)
+        return data.albums.concat(nextAlbums)
     }
-    return albums
+    return data.albums
 }
 
 async function createMediaItem(uploadToken, options = {}) {
