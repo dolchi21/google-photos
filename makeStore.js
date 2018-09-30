@@ -4,6 +4,7 @@ const {
     combineReducers,
     createStore,
 } = require('redux')
+const thunk = require('redux-thunk').default
 
 const file = require('./lib/file')
 const Data = require('./modules/Data')
@@ -20,7 +21,7 @@ const statePersister = filename => {
 
 module.exports = function make(initialState = {}) {
     const persister = statePersister('state.json')
-    const middleware = applyMiddleware(persister)
+    const middleware = applyMiddleware(thunk, persister)
     const reducer = combineReducers({
         data: Data.reducer
     })
