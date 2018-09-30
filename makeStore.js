@@ -1,3 +1,4 @@
+const Queue = require('promise-queue')
 const {
     applyMiddleware,
     combineReducers,
@@ -7,15 +8,19 @@ const {
 const file = require('./lib/file')
 const Data = require('./modules/Data')
 
-const statePersister = store => next => action => {
-    const result = next(action)
-    const state = store.getState()
-    file('state.json', state)
-    return result
+const statePersister = filename => {
+    const queue = new Queue(1)
+    return store => next => async action => {
+        const result = next(action)
+        const state = store.getState()
+        queue.add(() => file(filename, state))
+        return result
+    }
 }
 
 module.exports = function make(initialState = {}) {
-    const middleware = applyMiddleware(statePersister)
+    const persister = statePersister('state.json')
+    const middleware = applyMiddleware(persister)
     const reducer = combineReducers({
         data: Data.reducer
     })

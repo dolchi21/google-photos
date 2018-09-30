@@ -40,6 +40,7 @@ async function albums(options = {}) {
 
 async function createMediaItem(uploadToken, options = {}) {
     const {
+        albumId,
         description = 'node-upload-' + Date.now()
     } = options
     const client = await Auth.getAuthenticatedClient()
@@ -47,6 +48,7 @@ async function createMediaItem(uploadToken, options = {}) {
         method: 'POST',
         url: 'https://photoslibrary.googleapis.com/v1/mediaItems:batchCreate',
         data: {
+            albumId,
             newMediaItems: [{
                 description,
                 simpleMediaItem: { uploadToken }
