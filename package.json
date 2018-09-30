@@ -12,6 +12,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "google-auth-library": "^2.0.0",
+    "md5-file": "^4.0.0",
     "opn": "^5.4.0"
   }
 }
