@@ -1,3 +1,4 @@
+//@ts-check
 const fs = require('fs')
 const { OAuth2Client } = require('google-auth-library')
 const http = require('http')
@@ -34,7 +35,6 @@ async function tryRefreshAccessToken(oAuth2Client) {
         oAuth2Client.setCredentials(tokens);
         const r = await oAuth2Client.refreshAccessToken()
         tm.set(r.credentials)
-        console.info('Tokens refreshed.');
         return oAuth2Client
     } catch (err) {
         console.log('refresh', err)
@@ -43,6 +43,7 @@ async function tryRefreshAccessToken(oAuth2Client) {
 let authenticatedClient = null
 function getAuthenticatedClient() {
     if (authenticatedClient) return Promise.resolve(authenticatedClient)
+    //@ts-ignore
     const keys = require('../credentials.json').installed
     const tokensManager = TokensManager()
     return new Promise(async (resolve, reject) => {
@@ -71,10 +72,11 @@ function getAuthenticatedClient() {
                 const qs = querystring.parse(url.parse(req.url).query);
                 console.log(`Code is ${qs.code}`);
                 res.end('Authentication successful! Please return to the console.');
-                //server.close();
+                server.close();
 
                 // Now that we have the code, use that to acquire tokens.
                 try {
+                    //@ts-ignore
                     const r = await oAuth2Client.getToken(qs.code)
                     // Make sure to set the credentials on the OAuth2 client.
                     tokensManager.set(r.tokens)
