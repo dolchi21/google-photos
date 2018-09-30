@@ -8,6 +8,7 @@ const thunk = require('redux-thunk').default
 
 const file = require('./lib/file')
 const Data = require('./modules/Data')
+const Tasks = require('./modules/Tasks')
 
 const statePersister = filename => {
     const queue = new Queue(1)
@@ -23,7 +24,8 @@ module.exports = function make(initialState = {}) {
     const persister = statePersister('state.json')
     const middleware = applyMiddleware(thunk, persister)
     const reducer = combineReducers({
-        data: Data.reducer
+        data: Data.reducer,
+        tasks: Tasks.reducer,
     })
     const store = createStore(reducer, initialState, middleware)
     return store
