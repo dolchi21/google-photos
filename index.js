@@ -1,25 +1,53 @@
-const fs = require('fs')
+//@ts-check
 const md5 = require('md5-file/promise')
-const opn = require('opn')
+
+const file = require('./lib/file')
+const makeStore = require('./makeStore')
+const A = require('./actions')
+const S = require('./selectors')
 
 const gPhotos = require('./services/gPhotos')
-const { createMediaItem, upload } = gPhotos
 
 async function uploadTest() {
     const filename = 'upload-me.mp4'
     const md5Checksum = await md5(filename)
-    const upload_token = await upload(filename, {
-        filename: `${md5Checksum}.mp4`
-    })
-    const item = await createMediaItem(upload_token, {
+    const [upload_token, album] = await Promise.all([
+        gPhotos.upload(filename, {
+            filename: `${md5Checksum}.mp4`
+        }),
+        findUploadsAlbum()
+    ])
+    const item = await gPhotos.createMediaItem(upload_token, {
+        albumId: album.id,
         description: md5Checksum
     })
+
     return item
 }
 
-async function main() {
+async function findUploadsAlbum() {
     const albums = await gPhotos.albums()
-    return albums
+    const album = albums.find(({ title }) =>
+        title.toLowerCase() === 'uploads')
+    return album
+}
+
+async function main() {
+    const initialState = await file('state.json')
+    const store = makeStore(initialState, {
+        storage: 'state.json'
+    })
+
+    const loadAlbums = A.loadAlbums(gPhotos)
+    await store.dispatch(loadAlbums)
+
+    let uploadsAlbum = S.uploadsAlbum(store.getState())
+    if (!uploadsAlbum) {
+        await store.dispatch(A.createAlbum(gPhotos, 'uploads'))
+        uploadsAlbum = S.uploadsAlbum(store.getState())
+    }
+    
+    return uploadsAlbum
 }
 
 main().catch(err => {
