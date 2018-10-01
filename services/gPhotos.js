@@ -6,6 +6,7 @@ const Auth = require('./auth')
 module.exports = {
     album,
     albums,
+    createAlbum,
     createMediaItem,
     mediaItems,
     upload,
@@ -36,6 +37,20 @@ async function albums(options = {}) {
         return data.albums.concat(nextAlbums)
     }
     return data.albums
+}
+
+async function createAlbum(title) {
+    const client = await Auth.getAuthenticatedClient()
+    const res = await client.request({
+        method: 'POST',
+        url: 'https://photoslibrary.googleapis.com/v1/albums',
+        data: {
+            album: {
+                title
+            }
+        }
+    })
+    return res.data
 }
 
 async function createMediaItem(uploadToken, options = {}) {
