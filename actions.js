@@ -28,8 +28,19 @@ const loadMediaItems = gPhotos => async dispatch => {
     dispatch(t.end())
 }
 
+const upload = (gPhotos, file, options = {}) => async dispatch => {
+    const t = Task('upload')
+    dispatch(t.start())
+    const uploadToken = await gPhotos.upload(file, options)
+    const action = Data.set('uploadToken', uploadToken)
+    dispatch(action)
+    dispatch(t.end())
+    return uploadToken
+}
+
 module.exports = {
     createAlbum,
     loadAlbums,
     loadMediaItems,
+    upload,
 }
