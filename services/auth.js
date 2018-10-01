@@ -55,8 +55,10 @@ function getAuthenticatedClient() {
             keys.redirect_uris[0]
         );
 
-        const refreshedClient = tryRefreshAccessToken(oAuth2Client)
-        if (refreshedClient) return resolve(refreshedClient)
+        if (tokensManager.get()) {
+            const refreshedClient = tryRefreshAccessToken(oAuth2Client)
+            if (refreshedClient) return resolve(refreshedClient)
+        }
 
         // Generate the url that will be used for the consent dialog.
         const authorizeUrl = oAuth2Client.generateAuthUrl({
