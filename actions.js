@@ -1,5 +1,7 @@
 //@ts-check
+const Albums = require('./modules/Albums')
 const Data = require('./modules/Data')
+const MediaItems = require('./modules/MediaItems')
 const { Task } = require('./modules/Tasks')
 
 const createAlbum = (gPhotos, title) => async dispatch => {
@@ -10,23 +12,8 @@ const createAlbum = (gPhotos, title) => async dispatch => {
     dispatch(loadAlbums(gPhotos))
 }
 
-const loadAlbums = gPhotos => async dispatch => {
-    const t = Task('loadAlbums')
-    dispatch(t.start())
-    const albums = await gPhotos.albums()
-    const action = Data.set('albums', albums)
-    dispatch(action)
-    dispatch(t.end())
-}
-
-const loadMediaItems = gPhotos => async dispatch => {
-    const t = Task('loadMediaItems')
-    dispatch(t.start())
-    const mediaItems = await gPhotos.mediaItems()
-    const action = Data.set('mediaItems', mediaItems)
-    dispatch(action)
-    dispatch(t.end())
-}
+const loadAlbums = Albums.loadAlbums
+const loadMediaItems = MediaItems.loadMediaItems
 
 const upload = (gPhotos, file, options = {}) => async dispatch => {
     const t = Task('upload')
