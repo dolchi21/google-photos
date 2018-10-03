@@ -43,7 +43,9 @@ const set = albums => ({
 })
 
 module.exports = {
+    LOAD_ALBUMS,
     LOAD_ALBUMS_SUCCESS,
+    LOAD_ALBUMS_ERROR,
     reducer,
     album,
     loadAlbums,
