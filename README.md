@@ -4,6 +4,7 @@
 
 ## roadmap
 
+- album:mediaItem relationships
 - resumable uploads.
 - `cli` tool.
 - folder watcher.
