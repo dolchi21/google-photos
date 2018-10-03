@@ -63,6 +63,8 @@ async function main() {
         uploadsAlbum = S.uploadsAlbum(store.getState())
     }
 
+    const uploads = await A.loadAlbumMediaItems(gPhotos, uploadsAlbum.id)
+
     return uploadsAlbum
 }
 
