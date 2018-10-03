@@ -13,6 +13,13 @@ const createAlbum = (gPhotos, title) => async dispatch => {
 }
 
 const loadAlbums = Albums.loadAlbums
+const loadAlbumMediaItems = (gPhotos, albumId) => async dispatch => {
+    const { start, end } = Task('albumMediaItems')
+    dispatch(start())
+    const mediaItems = await gPhotos.albumMediaItems(albumId)
+    dispatch(end())
+    return mediaItems
+}
 const loadMediaItems = MediaItems.loadMediaItems
 
 const upload = (gPhotos, file, options = {}) => async dispatch => {
@@ -28,6 +35,7 @@ const upload = (gPhotos, file, options = {}) => async dispatch => {
 module.exports = {
     createAlbum,
     loadAlbums,
+    loadAlbumMediaItems,
     loadMediaItems,
     upload,
 }
