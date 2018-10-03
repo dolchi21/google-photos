@@ -5,11 +5,12 @@ const TIME = {
     D: 1000 * 60 * 60 * 24
 }
 const md5 = require('md5-file/promise')
+const { bindActionCreators } = require('redux')
 
-const file = require('./lib/file')
+const ActionCreators = require('./actionCreators')
 const makeStore = require('./makeStore')
-const A = require('./actions')
 const S = require('./selectors')
+const file = require('./lib/file')
 
 const gPhotos = require('./services/gPhotos')
 
@@ -48,18 +49,17 @@ async function main() {
     const store = makeStore(initialState, {
         storage: 'state.json'
     })
-    await store.dispatch(A.loadMediaItems(gPhotos))
+    const A = bindActionCreators(ActionCreators, store.dispatch)
+
+    //await A.loadMediaItems(gPhotos)
 
     const albumsAge = S.albumsAge(store.getState())
-    if (TIME.H < albumsAge) {
-        const loadAlbums = A.loadAlbums(gPhotos)
-        await store.dispatch(loadAlbums)
-    }
+    if (TIME.H < albumsAge) await A.loadAlbums(gPhotos)
 
 
     let uploadsAlbum = S.uploadsAlbum(store.getState())
     if (!uploadsAlbum) {
-        await store.dispatch(A.createAlbum(gPhotos, 'uploads'))
+        await A.createAlbum(gPhotos, 'uploads')
         uploadsAlbum = S.uploadsAlbum(store.getState())
     }
 
