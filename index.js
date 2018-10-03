@@ -1,4 +1,9 @@
 //@ts-check
+const TIME = {
+    M: 1000 * 60,
+    H: 1000 * 60 * 60,
+    D: 1000 * 60 * 60 * 24
+}
 const md5 = require('md5-file/promise')
 
 const file = require('./lib/file')
@@ -9,16 +14,22 @@ const S = require('./selectors')
 const gPhotos = require('./services/gPhotos')
 
 async function uploadTest() {
+    const initialState = await file('state.json')
+    const store = makeStore(initialState, {
+        storage: 'state.json'
+    })
+    const uploadsAlbum = S.uploadsAlbum(store.getState())
+
+    if (!uploadsAlbum) throw new Error('MissingUploadsAlbum')
+
     const filename = 'upload-me.mp4'
     const md5Checksum = await md5(filename)
-    const [upload_token, album] = await Promise.all([
-        gPhotos.upload(filename, {
-            filename: `${md5Checksum}.mp4`
-        }),
-        findUploadsAlbum()
-    ])
+    const upload_token = await gPhotos.upload(filename, {
+        filename: `${md5Checksum}.mp4`
+    })
+
     const item = await gPhotos.createMediaItem(upload_token, {
-        albumId: album.id,
+        albumId: uploadsAlbum.id,
         description: md5Checksum
     })
 
@@ -37,16 +48,21 @@ async function main() {
     const store = makeStore(initialState, {
         storage: 'state.json'
     })
+    await store.dispatch(A.loadMediaItems(gPhotos))
 
-    const loadAlbums = A.loadAlbums(gPhotos)
-    await store.dispatch(loadAlbums)
+    const albumsAge = S.albumsAge(store.getState())
+    if (TIME.H < albumsAge) {
+        const loadAlbums = A.loadAlbums(gPhotos)
+        await store.dispatch(loadAlbums)
+    }
+
 
     let uploadsAlbum = S.uploadsAlbum(store.getState())
     if (!uploadsAlbum) {
         await store.dispatch(A.createAlbum(gPhotos, 'uploads'))
         uploadsAlbum = S.uploadsAlbum(store.getState())
     }
-    
+
     return uploadsAlbum
 }
 
