@@ -1,4 +1,9 @@
 //@ts-check
+const Task = (start, end, error) => ({
+    start: () => ({ type: start }),
+    end: payload => ({ type: end, payload }),
+    error: payload => ({ type: error, payload })
+})
 module.exports = (namespace, options = {}) => {
     const LOAD_ONE = `${namespace}/LOAD_ONE`
     const LOAD_ONE_SUCCESS = `${namespace}/LOAD_ONE_SUCCESS`
@@ -25,13 +30,7 @@ module.exports = (namespace, options = {}) => {
         LOAD_ONE_SUCCESS,
         LOAD_MANY_SUCCESS,
         reducer,
-        many: () => ({
-            start: () => ({ type: LOAD_MANY }),
-            end: payload => ({
-                type: LOAD_MANY_SUCCESS,
-                payload
-            })
-        }),
+        many: Task(LOAD_MANY, LOAD_MANY_SUCCESS),
         one: () => ({
             start: () => ({ type: LOAD_ONE }),
             end: payload => ({
