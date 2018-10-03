@@ -42,6 +42,9 @@ function Task(name) {
 }
 
 module.exports = {
+    RUNNING,
+    SUCCESS,
+    ERROR,
     reducer,
     Task
 }
