@@ -1,10 +1,20 @@
 //@ts-check
 const { LOAD_ALBUMS_SUCCESS } = require('./Albums')
 const MediaItems = require('./MediaItems')
+const Tasks = require('./Tasks')
 
 const reducer = module.exports.reducer = function reducer(state = {}, action) {
     if (action.type.indexOf('@@redux/INIT') === 0) return state
     switch (action.type) {
+        case Tasks.RUNNING:
+        case Tasks.SUCCESS:
+        case Tasks.ERROR: {
+            const key = `${action.payload}/${action.type}`
+            return {
+                ...state,
+                [key]: Date.now()
+            }
+        }
         default:
             return {
                 ...state,
