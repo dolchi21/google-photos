@@ -5,6 +5,7 @@ const TIME = {
     D: 1000 * 60 * 60 * 24
 }
 const md5 = require('md5-file/promise')
+const Queue = require('promise-queue')
 const { bindActionCreators } = require('redux')
 
 const ActionCreators = require('./actionCreators')
@@ -51,21 +52,42 @@ async function main() {
     })
     const A = bindActionCreators(ActionCreators, store.dispatch)
 
-    //await A.loadMediaItems(gPhotos)
+    const state1 = store.getState()
+    const albumsAge = S.albumsAge(state1)
+    const mediaItemsAge = S.mediaItemsAge(state1)
 
-    const albumsAge = S.albumsAge(store.getState())
+    console.log('loading data')
     if (TIME.H < albumsAge) await A.loadAlbums(gPhotos)
+    if (TIME.H < mediaItemsAge) await A.loadMediaItems(gPhotos)
 
-
-    let uploadsAlbum = S.uploadsAlbum(store.getState())
+    /*let uploadsAlbum = S.uploadsAlbum(store.getState())
     if (!uploadsAlbum) {
         await A.createAlbum(gPhotos, 'uploads')
         uploadsAlbum = S.uploadsAlbum(store.getState())
-    }
+    }*/
 
-    const uploads = await A.loadAlbumMediaItems(gPhotos, uploadsAlbum.id)
+    const AlbumMediaItem = require('./modules/AlbumMediaItem')
 
-    return uploadsAlbum
+    const albumsMediaItemsQueue = new Queue(10)
+    const albumsMediaItemsTasks = S.albums(store.getState()).map(album => {
+        return albumsMediaItemsQueue.add(async () => {
+            const mediaItems = await A.loadAlbumMediaItems(gPhotos, album.id)
+            console.log('album', album.title, 'mediaItems', mediaItems)
+            if (!mediaItems) return
+            AlbumMediaItem.addAlbumMediaItems(album.id, mediaItems)(store.dispatch)
+        })
+    })
+    await Promise.all(albumsMediaItemsTasks)
+
+    //const uploads = await A.loadAlbumMediaItems(gPhotos, uploadsAlbum.id)
+
+    const mediaItems = S.mediaItems(store.getState())
+
+    const soloItems = mediaItems.filter(item => {
+        return item.albumIds.length === 0
+    })
+
+    return mediaItems
 }
 
 main().catch(err => {
