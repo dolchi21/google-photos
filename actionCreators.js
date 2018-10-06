@@ -12,7 +12,6 @@ const createAlbum = (gPhotos, title) => async dispatch => {
     dispatch(loadAlbums(gPhotos))
 }
 
-const loadAlbums = Albums.loadAlbums
 const loadAlbumMediaItems = (gPhotos, albumId) => async dispatch => {
     const { start, end } = Task('albumMediaItems')
     dispatch(start())
@@ -20,6 +19,7 @@ const loadAlbumMediaItems = (gPhotos, albumId) => async dispatch => {
     dispatch(end())
     return mediaItems
 }
+const loadAlbums = Albums.loadAlbums
 const loadMediaItems = MediaItems.loadMediaItems
 
 const upload = (gPhotos, file, options = {}) => async dispatch => {
