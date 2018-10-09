@@ -38,13 +38,6 @@ async function uploadTest() {
     return item
 }
 
-async function findUploadsAlbum() {
-    const albums = await gPhotos.albums()
-    const album = albums.find(({ title }) =>
-        title.toLowerCase() === 'uploads')
-    return album
-}
-
 async function main() {
     const initialState = await file('state.json')
     const store = makeStore(initialState, {
@@ -56,7 +49,6 @@ async function main() {
     const albumsAge = S.albumsAge(state1)
     const mediaItemsAge = S.mediaItemsAge(state1)
 
-    console.log('loading data')
     if (TIME.H < albumsAge) await A.loadAlbums(gPhotos)
     if (TIME.H < mediaItemsAge) await A.loadMediaItems(gPhotos)
 
