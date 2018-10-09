@@ -1,6 +1,8 @@
 const AlbumMediaItem = require('./modules/AlbumMediaItem')
 const Timestamps = require('./modules/Timestamps')
 
+const album = module.exports.album = (state, id) => state.albums.find(a => a.id === id)
+
 const albums = module.exports.albums = state => state.albums
 
 const albumsAge = module.exports.albumsAge = state => {
